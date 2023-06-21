@@ -6,9 +6,17 @@ const OrderSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
-  _idIdentity: {
+  _idUser: {
     type: String,
     required: true,
+  },
+  _idRestorer: {
+    type: String,
+    required: true,
+  },
+  _idDeliveryman: {
+    type: String,
+    required: false,
   },
   _idPayment: {
     type: String,

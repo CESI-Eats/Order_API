@@ -68,16 +68,18 @@ export async function sendMessage(message: MessageLapinou, queueName: string): P
     console.log(` [x] Message sent: ${JSON.stringify(message)}`);
 }
 
-export function receiveResponses(queueName: string, expectedCorrelationId: string, expectedResponses: number): Promise<MessageLapinou[]> {
+export function receiveResponses(queueName: string, expectedCorrelationId: string, expectedResponses: number, timeout = true): Promise<MessageLapinou[]> {
     return new Promise((resolve, reject) => {
         // Declare the queue
         ch.assertQueue(queueName, { durable: true });
 
         const receivedResponses: MessageLapinou[] = [];
-
-        const timeoutId = setTimeout(() => {
-            reject(new Error('Timeout after 5 seconds'));
-        }, 5000);
+        let timeoutId: NodeJS.Timeout;
+        if (timeout){
+            timeoutId = setTimeout(() => {
+                reject(new Error('Timeout after 5 seconds'));
+            }, 5000);
+        }
 
         // Wait for Queue Messages
         ch.consume(queueName, (msg) => {
@@ -98,7 +100,9 @@ export function receiveResponses(queueName: string, expectedCorrelationId: strin
                                 console.error(`Failed to cancel consumer: ${err}`);
                                 reject(err);
                             } else {
-                                clearTimeout(timeoutId);
+                                if (timeout){
+                                    clearTimeout(timeoutId);
+                                }
                                 resolve(receivedResponses);
                             }
                         });

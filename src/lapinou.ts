@@ -1,9 +1,9 @@
 import { connectLapinou } from './services/lapinouService';
-import { createMainExchange } from './exchanges/mainExchange';
+import { createOrderingExchange } from './exchanges/orderingExchange';
 
 export function initLapinou(){
     connectLapinou().then(async () => {
-      createMainExchange();
+      createOrderingExchange();
     }).catch((err) => {
         console.error('Failed to connect to rabbitMQ');
     });
