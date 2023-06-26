@@ -90,6 +90,10 @@ export function createOrderingExchange() {
                 }
                 console.log(`Order status updated : ${message.content.status}`);
 
+                if (message.content.status === 'delivered') {
+                    await publishTopic('ordering', 'order.delivered', {success: true, content: order});
+                }
+
                 const socketMessage: MessageLapinou = {
                     success: true,
                     content: {
