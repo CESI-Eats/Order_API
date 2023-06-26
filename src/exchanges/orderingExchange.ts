@@ -10,13 +10,23 @@ export function createOrderingExchange() {
                 try {
                 console.log(` [x] Received message: ${JSON.stringify(message)}`);
 
+                const order = new Order({
+                    _idMenus: message.content._idMenus,
+                    _idUser: message.content._idIdentity,
+                    _idRestorer: message.content._idRestorer,
+                    _idDeliveryman: null,
+                    amount: message.content.amount,
+                    withCommissionAmount: Number(message.content.amount) + Number(process.env.CESIEAT_COMMISSION),
+                    deliveryAmount: process.env.DELIVERYMAN_COMMISSION,
+                });
+
                 const paymentReplyQueue = 'create.payment.reply';
                 const paymentCorrelationId = uuidv4();
                 const paymentMessage: MessageLapinou = {
                     success: true,
                     content: {
                         id: message.content._idIdentity,
-                        amount: message.content.amount,
+                        amount: order.withCommissionAmount + order.deliveryAmount,
                         mode: message.content.mode
                     },
                     correlationId: paymentCorrelationId,
@@ -28,16 +38,7 @@ export function createOrderingExchange() {
                     throw new Error('Payment failed');
                 }
 
-                const order = new Order({
-                    _idMenus: message.content._idMenus,
-                    _idUser: message.content._idIdentity,
-                    _idPayment: responses[0].content.id,
-                    _idRestorer: message.content._idRestorer,
-                    _idDeliveryman: null,
-                    amount: message.content.amount,
-                    withCommissionAmount: message.content.amount + process.env.CESIEAT_COMMISSION,
-                    deliveryAmount: process.env.DELIVERYMAN_COMMISSION,
-                });
+                order._idPayment = responses[0].content.id,
                 await order.save();
                 
                 const orderMessage: MessageLapinou = {
