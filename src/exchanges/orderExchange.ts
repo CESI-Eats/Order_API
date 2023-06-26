@@ -1,6 +1,5 @@
 import { MessageLapinou, handleTopic, initExchange, initQueue, publishTopic, receiveResponses, sendMessage } from "../services/lapinouService";
 import Order from "../models/order";
-import { v4 as uuidv4 } from 'uuid';
 
 export function createOrderExchange() {
     initExchange('order').then(exchange => {
