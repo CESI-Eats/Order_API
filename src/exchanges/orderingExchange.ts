@@ -58,7 +58,7 @@ export function createOrderingExchange() {
                 const message = msg.content as MessageLapinou;
                 try {
                 console.log(` [x] Received message: ${JSON.stringify(message)}`);
-                await Order.findOneAndUpdate({_idUser: message.content._idUser}, {_idDeliveryman: message.content.deliveryMan.id, status: 'assigned'});
+                await Order.findOneAndUpdate({_id: message.content._idOrder}, {_idDeliveryman: message.content.deliveryMan.id, status: 'assigned'});
                 console.log(`Order assigned to deliveryman`);
 
                 const socketMessage: MessageLapinou = {
@@ -75,6 +75,35 @@ export function createOrderingExchange() {
                 } catch (err) {
                     const errMessage = err instanceof Error ? err.message : 'An error occurred';
                     console.error(errMessage);
+                }
+            });
+        });
+        initQueue(exchange, 'update.order.status').then(({queue, topic}) => {
+            handleTopic(queue, topic, async (msg) => {
+                const message = msg.content as MessageLapinou;
+                try {
+                console.log(` [x] Received message: ${JSON.stringify(message)}`);
+                const order = await Order.findOneAndUpdate({_id: message.content.orderId}, {status: message.content.status});
+                if(!order) {
+                    throw new Error('Order not found');
+                }
+                console.log(`Order status updated : ${message.content.status}`);
+
+                const socketMessage: MessageLapinou = {
+                    success: true,
+                    content: {
+                        topic: `order.${message.content.status}`,
+                        message: message.content.status,
+                        ids: [order._idUser, order._idDeliveryman]
+                    }
+                };
+
+                await publishTopic('notifications', 'send.websocket', socketMessage);
+
+                await sendMessage({success: true, content: null, correlationId: message.correlationId, sender: 'order'}, message.replyTo??'');
+                } catch (err) {
+                    const errMessage = err instanceof Error ? err.message : 'An error occurred';
+                    await sendMessage({success: false, content: errMessage, correlationId: message.correlationId, sender: 'order'}, message.replyTo??'');
                 }
             });
         });
