@@ -8,7 +8,5 @@ export function initLapinou() {
         createOrderingExchange();
         createOrderExchange();
         getHistoricExchange();
-    }).catch((err) => {
-        console.error('Failed to connect to rabbitMQ');
     });
 }
