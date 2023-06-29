@@ -9,7 +9,7 @@ export function createOrderExchange() {
                 try {
                 console.log(` [x] Received message: ${JSON.stringify(message)}`);
                 const orders = await Order.find();
-                console.log(`Orders retrieved : ${orders}`);
+                console.log(`Orders retrieved : ${JSON.stringify(JSON.stringify(orders)) }`);
                 if(orders.length === 0) {
                     throw new Error('Orders not found');
                 }

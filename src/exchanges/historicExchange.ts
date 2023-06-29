@@ -10,8 +10,6 @@ export function getHistoricExchange() {
                     console.log(` [x] Received message: ${JSON.stringify(message)}`);
                     const orders = await Order.find({_idUser: message.content.id}).lean();
 
-                    console.log(`Orders retrieved : ${orders}`);
-
                     await sendMessage(
                         {
                             success: true,
@@ -41,11 +39,8 @@ export function getHistoricExchange() {
                 const message = msg.content as MessageLapinou;
                 try {
                     console.log(` [x] Received message: ${JSON.stringify(message)}`);
-                    const orders = await Order.find(Order, {
-                        where: {_idDeliveryman: message.content.id}
-                    });
 
-                    console.log(`Orders retrieved : ${orders}`);
+                    const orders = await Order.find({_idDeliveryman: message.content.id}).lean();
 
                     await sendMessage({
                         success: true,
