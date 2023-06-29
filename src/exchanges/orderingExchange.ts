@@ -38,7 +38,7 @@ export function createOrderingExchange() {
                     throw new Error('Payment failed');
                 }
 
-                order._idPayment = responses[0].content.id,
+                order._idPayment = responses[0].content.id
                 await order.save();
                 
                 const orderMessage: MessageLapinou = {
